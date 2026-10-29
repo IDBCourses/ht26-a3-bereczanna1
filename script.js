@@ -23,10 +23,6 @@
 
 import { createShape } from "./shape.js";
 
-let shape; //melody
-const circle = createShape();
-const square = createShape();
-
 // ---------- Settings ----------
 // Settings variables should contain all of the "fixed" parts of your programs
 // For example: which notes you can play, how fast things move, the tempo.
@@ -113,17 +109,46 @@ const bassMelody = [
 // ---------- State ----------
 // State variables are the parts of your program that change over time.
 // For example: where the pointer is, how fast it's moving, or whether a drone is on.
+
+const shape = createShape(); //melody
+const circle = createShape(); //to change the freaquency
+const square = createShape(); //for making the shape spin faster&volume up with the pointer?
+const square2 = createShape(); //for freaquency
+
 let inside = false;
 let lastX = null;
 let lastY = null;
 let lastTime = null;
-
+let angle = 0;
 let speed = 0.02; // Base rotation speed
 let targetSpeed = 0.02;
+let speeds = [];
+
+let currentOctave = 4;
+const baseFrequency = 440;
+let previousOctave = -1;
+
 // ---------- Sound ----------
 // Make the instruments and plug them into the speakers.
-const synth = new Tone.AMSynth(Tone.Synth).toDestination(); // can play several notes at once
+const pitchShift = new Tone.PitchShift(0).toDestination();
+const synth = new Tone.AMSynth().connect(pitchShift); // can play several notes at once
+
 // Add subtle chorus for piano string width
+
+function updateSound(){
+  pitchShift.pitch = (currentOctave - 4) * 12;
+}
+
+function raiseFrequency(){
+  currentOctave = Math.min(6, currentOctave + 1);
+  updateSound();
+
+}
+
+function lowerFrequency(){
+  currentOctave = Math.max(2, currentOctave - 1);
+  updateSound();
+}
 
 // ---------- Update ----------
 // Update the state. This is called every 100ms.
@@ -134,7 +159,20 @@ function update() {
 // ---------- Use ----------
 // Use the state to make sound and move shapes. This is called every 100ms.
 function use() {
-  setTimeout(use, 100); // call use() again in 100 milliseconds
+  //setTimeout(use, 100); // call use() again in 100 millisecond
+}
+
+ // Start the circle animation
+// ---------- Circle Animation ----------
+function animateShape() {
+  speed += (targetSpeed - speed) * 0.3; // Smoothly adjust rotation speed
+  angle += speed; // Move a little farther around the circle
+
+  // Move our existing shape
+  if (shape) {
+    shape.element.style.rotate = `${angle}rad`;
+  }
+  requestAnimationFrame(animateShape); // Keep the animation going in a loop
 }
 
 // ---------- Controls (Event Handlers) ----------
@@ -143,32 +181,110 @@ function pointerDown(event) {
   Tone.start(); // browsers only allow sound after the player has pressed something
 
   const start = Tone.now() + 0.1; // adds a slight buffer when a keynote is pressed
-  //Right hand
-  for (let i = 0; i < melody.length; i++) {
-    let melodytime = start + i * 0.35; // creates a rhytm so there 0.4 seconds between every note
+
+  //Melody starts playing
+  for (let i = 1; i < melody.length; i++) {
+    let melodytime = start + i * 0.35; // creates a rhytm so there 0.35 seconds between every note
     console.log("Pointer down at", event.clientX, event.clientY);
     if (melody[i] !== null) {
-      synth.triggerAttackRelease(melody[i], "4n", melodytime); // play the note for an eighth note
+      synth.triggerAttackRelease(melody[i], "4n", melodytime); // play the melody for
     }
   }
-  //left hand
-  for (let i = 0; i < bassMelody.length; i++) {
+  //bassMelody starts playing
+  for (let i = 1; i < bassMelody.length; i++) {
     // goes through the notes in the melody
-    let bassMelodytime = start + i * 0.55; // creates a rhytm so there 0.8 seconds between every note
+    let bassMelodytime = start + i * 0.55; // creates a rhytm so there 0.55 seconds between every note
     console.log("Pointer down at", event.clientX, event.clientY);
     if (bassMelody[i] !== null) {
       synth.triggerAttackRelease(bassMelody[i], "2n", bassMelodytime);
     }
   }
 }
+
 function pointerEnter(event) {
   Tone.start();
-  synth.triggerAttack("E5", "8n");
+  inside = true;
+  synth.volume.value = -20; // start quiet: we haven't moved yet
+
+  lastX = event.clientX;
+  lastY = event.clientY;
+  lastTime = performance.now();
 }
 
 function pointerLeave(event) {
-  synth.triggerRelease("E5");
+  inside = false;
+  lastX =null;
+  lastY = null;
+  lastTime = null;
+  targetSpeed = 0.035; // Return to base speed
+  synth.volume.value = -20; // start quiet: we haven't moved yet
 }
+
+function pointerMove(event) {
+  if (!inside) {
+    return; //  only while on the shape
+  }
+  const now = performance.now();
+  const x = event.clientX;
+  const y = event.clientY;
+
+  if (lastX !== null && lastY !== null && lastTime !== null){
+    const dx = x - lastX;
+    const dy = y - lastY;
+    const seconds = (now-lastTime) / 1000;
+
+    if (seconds > 0){
+      const distance = Math.hypot(dx, dy);
+      const velocity = distance / seconds;
+
+      //Adjust rotation speed based on pointer movement
+      targetSpeed = Math.min(0.035 + velocity * 0.00007, 0.35);
+
+      //Adjust volume based on pointer movement
+      let volume = -20 + velocity * 0.01;
+      volume = Math.max(-20, Math.min(0, volume));
+      synth.volume.rampTo(volume, 0.1);
+    }
+  }
+  lastX = x;
+  lastY = y;
+  lastTime = now;
+}
+
+ function pointerMove1(event){
+  const rect = square2.element.getBoundingClientRect();
+
+  // Ignore pointer positions outside the octave control
+  const position = Math.max(0, Math.min(1, 1 - (event.clientY- rect.top)/ rect.height));
+
+ // Map pointer position to octave levels 2–6
+  const octave = 2 + Math.floor(position * 5);
+
+  if (previousOctave === -1) {
+    // Initialise the control the first time
+    currentOctave = octave;
+    previousOctave = octave;
+    updateSound();
+    return;
+  }
+
+  if (octave > previousOctave) {
+    // Pointer moved to a higher octave
+    while (currentOctave < octave) {
+      raiseFrequency();
+    }
+  } else if (octave < previousOctave) {
+    // Pointer moved to a lower octave
+    while (currentOctave > octave) {
+      lowerFrequency();
+    }
+  }
+
+  previousOctave = octave;
+
+  console.log("Octave:", currentOctave);
+}
+
 
 // ---------- Setup ----------
 // Setup is run once, at the start of the program. It sets everything up for us!
@@ -178,104 +294,38 @@ function setup() {
 
   // Example: a shape near the middle of the window. Replace it with your own.
 
-  circle.setColour(416, 100, 86);
-  circle.setPosition(0.4, 0.5);
+  circle.setColour(0, 0, 83);
+  circle.setPosition(0.185, 0.5);
   circle.setRoundedness(1);
-  circle.setSize(50);
+  circle.setSize(30, 10);
+  circle.element.style.zIndex ="4";
 
-  square.setColour((416, 100, 50));
+  square.setColour(0, 0, 8);
   square.setPosition(0.5, 0.05);
-  square.setRoundedness(1);
+  square.setRoundedness(0.5);
   square.setSize(500);
+  square.element.style.zIndex = "1";
 
-  shape = createShape("melody");
-  shape.setColour(241, 100, 50);
-  shape.setPosition(0.605, 0.31);
-  shape.setSize(230);
+  square2.setColour(0, 0, 8);
+  square2.setPosition(0.15, 0.15);
+  square2.setRoundedness(0.2);
+  square2.setSize(100,400);
+  square2.element.style.zIndex = "3";
+
+  shape.setColour(0, 0, 83);
+  shape.setPosition(0.64, 0.33);
+  shape.setSize(210);
   shape.setRoundedness(0.41);
+  shape.element.style.zIndex = "2";
 
-  // Start the circle animation
-  animateShape();
-
-  // Put your event listener code here
+ // Put your event listener code here
   shape.element.addEventListener("pointerdown", pointerDown);
-  if (typeof pointerUp === "function") {
-    shape.element.addEventListener("pointerup", pointerUp);
-  }
-  //shape.element.addEventListener("pointerenter", pointerEnter);
-  //shape.element.addEventListener("pointerleave", pointerLeave);
-  square.element.addEventListener("pointerenter", () => {
-    inside = true;
-    lastX = null;
-    lastY = null;
-    lastTime = null;
-  });
+  square.element.addEventListener("pointerenter", pointerEnter);
+  square.element.addEventListener("pointerleave", pointerLeave);
+  square.element.addEventListener("pointermove", pointerMove);
+  square2.element.addEventListener("pointermove",pointerMove1);
 
-  square.element.addEventListener("pointerleave", () => {
-    inside = false;
-    lastX = null;
-    lastY = null;
-    lastTime = null;
-
-    targetSpeed = 0.035; // Return to base speed
-  });
-
-  square.element.addEventListener("pointermove", (event) => {
-    if (!inside) return;
-
-    const now = performance.now();
-    if (lastTime !== null) {
-      const x = event.clientX - lastX;
-      const y = event.clientY - lastY;
-      const seconds = (now - lastTime) / 1000;
-
-      if (seconds > 0) {
-        const distance = Math.hypot(x, y);
-        const velocity = distance / seconds;
-
-        targetSpeed = Math.min(
-          // Faster pointer movement = faster circle
-          0.035 + velocity * 0.00007,
-          0.35,
-        );
-          //if (targetSpeed* < 0.3){
-
-         // }
-      }
-    }
-    lastX = event.clientX;
-    lastY = event.clientY;
-    lastTime = now;
-  });
-}
-// ---------- Circle Animation ----------
-
-// Th)e center of the circle (relative screen position)
-//const centerX = 0.6;
-//const centerY = 0.35;
-
-// Circle settings
-//const radius = 100; // pixels
-
-let angle = 0;
-
-function animateShape() {
-  speed += (targetSpeed - speed) * 0.3; // Smoothly adjust rotation speed
-  // Move a little farther around the circle
-  angle += speed;
-
-  // Calculate the new position
-  //const x1 = centerX + (radius * Math.cos(angle)) / window.innerWidth; //körpályán mozgás
-  //const y1 = centerY + (radius * Math.sin(angle)) / window.innerHeight;
-
-  // Move our existing shape
-  if (shape) {
-    //shape.setPosition(x1, y1);
-    shape.element.style.rotate = `${angle}rad`;
-  }
-
-  // Keep the animation going
-  requestAnimationFrame(animateShape);
+  animateShape();
 }
 
 setup(); // Always remember to call setup()!
