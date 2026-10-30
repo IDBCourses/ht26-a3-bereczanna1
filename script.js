@@ -110,10 +110,10 @@ const bassMelody = [
 // State variables are the parts of your program that change over time.
 // For example: where the pointer is, how fast it's moving, or whether a drone is on.
 
-const shape = createShape(); //melody
-const circle = createShape(); //to change the freaquency
-const square = createShape(); //for making the shape spin faster&volume up with the pointer?
-const square2 = createShape(); //for freaquency
+const spinningshape = createShape();
+const circleOctaves = createShape();
+const circle = createShape();
+const squareOctaves = createShape();
 
 let inside = false;
 let lastX = null;
@@ -135,17 +135,16 @@ const synth = new Tone.AMSynth().connect(pitchShift); // can play several notes 
 
 // Add subtle chorus for piano string width
 
-function updateSound(){
+function updateSound() {
   pitchShift.pitch = (currentOctave - 4) * 12;
 }
 
-function raiseFrequency(){
+function raiseFrequency() {
   currentOctave = Math.min(6, currentOctave + 1);
   updateSound();
-
 }
 
-function lowerFrequency(){
+function lowerFrequency() {
   currentOctave = Math.max(2, currentOctave - 1);
   updateSound();
 }
@@ -159,18 +158,18 @@ function update() {
 // ---------- Use ----------
 // Use the state to make sound and move shapes. This is called every 100ms.
 function use() {
-  //setTimeout(use, 100); // call use() again in 100 millisecond
+  setTimeout(use, 100); // call use() again in 100 millisecond
 }
 
- // Start the circle animation
+// Start the circle animation
 // ---------- Circle Animation ----------
 function animateShape() {
   speed += (targetSpeed - speed) * 0.3; // Smoothly adjust rotation speed
   angle += speed; // Move a little farther around the circle
 
   // Move our existing shape
-  if (shape) {
-    shape.element.style.rotate = `${angle}rad`;
+  if (spinningshape) {
+    spinningshape.element.style.rotate = `${angle}rad`;
   }
   requestAnimationFrame(animateShape); // Keep the animation going in a loop
 }
@@ -213,7 +212,7 @@ function pointerEnter(event) {
 
 function pointerLeave(event) {
   inside = false;
-  lastX =null;
+  lastX = null;
   lastY = null;
   lastTime = null;
   targetSpeed = 0.035; // Return to base speed
@@ -228,12 +227,12 @@ function pointerMove(event) {
   const x = event.clientX;
   const y = event.clientY;
 
-  if (lastX !== null && lastY !== null && lastTime !== null){
+  if (lastX !== null && lastY !== null && lastTime !== null) {
     const dx = x - lastX;
     const dy = y - lastY;
-    const seconds = (now-lastTime) / 1000;
+    const seconds = (now - lastTime) / 1000;
 
-    if (seconds > 0){
+    if (seconds > 0) {
       const distance = Math.hypot(dx, dy);
       const velocity = distance / seconds;
 
@@ -251,13 +250,16 @@ function pointerMove(event) {
   lastTime = now;
 }
 
- function pointerMove1(event){
-  const rect = square2.element.getBoundingClientRect();
+function pointerMoveOctaves(event) {
+  const rect = squareOctaves.element.getBoundingClientRect();
 
   // Ignore pointer positions outside the octave control
-  const position = Math.max(0, Math.min(1, 1 - (event.clientY- rect.top)/ rect.height));
+  const position = Math.max(
+    0,
+    Math.min(1, 1 - (event.clientY - rect.top) / rect.height),
+  );
 
- // Map pointer position to octave levels 2–6
+  // Map pointer position to octave levels 2–6
   const octave = 2 + Math.floor(position * 5);
 
   if (previousOctave === -1) {
@@ -285,6 +287,15 @@ function pointerMove(event) {
   console.log("Octave:", currentOctave);
 }
 
+function pointerMoveShowingWhereInOctave(event) {
+  const rect = squareOctaves.element.getBoundingClientRect();
+
+  let circleY = (event.clientY - rect.top) / rect.height;
+
+  circleY = Math.max(0.15, Math.min(0.89, circleY));
+
+  circleOctaves.setPosition(0.185, circleY);
+}
 
 // ---------- Setup ----------
 // Setup is run once, at the start of the program. It sets everything up for us!
@@ -294,36 +305,40 @@ function setup() {
 
   // Example: a shape near the middle of the window. Replace it with your own.
 
-  circle.setColour(0, 0, 83);
-  circle.setPosition(0.185, 0.5);
-  circle.setRoundedness(1);
-  circle.setSize(30, 10);
-  circle.element.style.zIndex ="4";
+  circleOctaves.setColour(0, 0, 83);
+  circleOctaves.setPosition(0.185, 0.5);
+  circleOctaves.setRoundedness(1);
+  circleOctaves.setSize(30, 10);
+  circleOctaves.element.style.zIndex = "4";
 
-  square.setColour(0, 0, 8);
-  square.setPosition(0.5, 0.05);
-  square.setRoundedness(0.5);
-  square.setSize(500);
-  square.element.style.zIndex = "1";
+  circle.setColour(0, 0, 8);
+  circle.setPosition(0.5, 0.05);
+  circle.setRoundedness(0.5);
+  circle.setSize(500);
+  circle.element.style.zIndex = "1";
 
-  square2.setColour(0, 0, 8);
-  square2.setPosition(0.15, 0.15);
-  square2.setRoundedness(0.2);
-  square2.setSize(100,400);
-  square2.element.style.zIndex = "3";
+  squareOctaves.setColour(0, 0, 8);
+  squareOctaves.setPosition(0.15, 0.15);
+  squareOctaves.setRoundedness(0.2);
+  squareOctaves.setSize(100, 400);
+  squareOctaves.element.style.zIndex = "3";
 
-  shape.setColour(0, 0, 83);
-  shape.setPosition(0.64, 0.33);
-  shape.setSize(210);
-  shape.setRoundedness(0.41);
-  shape.element.style.zIndex = "2";
+  spinningshape.setColour(0, 0, 83);
+  spinningshape.setPosition(0.64, 0.33);
+  spinningshape.setSize(210);
+  spinningshape.setRoundedness(0.41);
+  spinningshape.element.style.zIndex = "2";
 
- // Put your event listener code here
-  shape.element.addEventListener("pointerdown", pointerDown);
-  square.element.addEventListener("pointerenter", pointerEnter);
-  square.element.addEventListener("pointerleave", pointerLeave);
-  square.element.addEventListener("pointermove", pointerMove);
-  square2.element.addEventListener("pointermove",pointerMove1);
+  // Put your event listener code here
+  spinningshape.element.addEventListener("pointerdown", pointerDown);
+  circle.element.addEventListener("pointerenter", pointerEnter);
+  circle.element.addEventListener("pointerleave", pointerLeave);
+  circle.element.addEventListener("pointermove", pointerMove);
+  squareOctaves.element.addEventListener("pointermove", pointerMoveOctaves);
+  squareOctaves.element.addEventListener(
+    "pointermove",
+    pointerMoveShowingWhereInOctave,
+  );
 
   animateShape();
 }
