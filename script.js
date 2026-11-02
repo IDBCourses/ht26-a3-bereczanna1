@@ -31,11 +31,8 @@ const baseFrequency = 440;
 let previousOctave = -1;
 
 // ---------- Sound ----------
-// Make the instruments and plug them into the speakers.
 const pitchShift = new Tone.PitchShift(0).toDestination();
 const synth = new Tone.AMSynth().connect(pitchShift); // can play several notes at once
-
-// Add subtle chorus for piano string width
 
 function updateSound() {
   pitchShift.pitch = (currentOctave - 4) * 12;
@@ -52,19 +49,17 @@ function lowerFrequency() {
 }
 
 // ---------- Update ----------
-// Update the state. This is called every 100ms.
+
 function update() {
   setTimeout(update, 100); // call update() again in 100 milliseconds
 }
 
 // ---------- Use ----------
-// Use the state to make sound and move shapes. This is called every 100ms.
 function use() {
   setTimeout(use, 100); // call use() again in 100 millisecond
 }
 
 // Start the circle animation
-// ---------- Circle Animation ----------
 function animateShape() {
   speed += (targetSpeed - speed) * 0.3; // Smoothly adjust rotation speed
   angle += speed;
@@ -184,7 +179,6 @@ function pointerMoveShowingWhereInOctave(event) {
 }
 
 // ---------- Setup ----------
-// Setup is run once, at the start of the program. It sets everything up for us!
 function setup() {
   update(); // start the update loop
   use(); // start the use loop
