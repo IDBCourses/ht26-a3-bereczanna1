@@ -22,7 +22,7 @@ It is an instrument that play two melody for the "right" and "left" hand like a 
 | --------------------------- | --------------------------------------- | ------------------- |
 
  If you click once inside the spinning light grey square, the melodies start to play, but if you click more than once the music will stack and starts to play it as many time as you clicked inside. I would advise to click only once at the time.
- Please, open it to the integrated browser in Visual Studio because I couldn't make it responsive ( what I mean is changing the size with the widow).
+ Please, open it to the integrated browser in Visual Studio in 1046px x 530px size.
 ---
 
 ## About this assignment
