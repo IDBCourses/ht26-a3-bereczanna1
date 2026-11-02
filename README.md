@@ -4,7 +4,7 @@
 
 **Name:** Anna Berecz at0162
 
-It is an instrument that play two melody for the "right" and "left" hand like a piano. By changing its octave it creates a different feelings for the player, sometimes it's nice to listen to the melody, and sometimes it painful but people should have place to understand why is a melody not or is pleasant.
+It is an instrument that play a melody and by changing its octave it creates a different feelings for the player, sometimes it's nice to listen to the melody, and sometimes it's painful but people should have place to understand why is a melody not or is pleasant.
 
 ## How to play
 
