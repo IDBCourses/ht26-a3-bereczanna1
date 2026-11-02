@@ -42,12 +42,12 @@ function updateSound() {
 }
 
 function raiseFrequency() {
-  currentOctave = Math.min(7, currentOctave + 1);
+  currentOctave = Math.min(6, currentOctave + 1);
   updateSound();
 }
 
 function lowerFrequency() {
-  currentOctave = Math.max(1, currentOctave - 1);
+  currentOctave = Math.max(2, currentOctave - 1);
   updateSound();
 }
 
