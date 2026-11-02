@@ -2,21 +2,26 @@
 
 **Play it here:** <!-- Paste your GitHub Pages link here, e.g. https://idbcourses.github.io/your-repo-name/ -->
 
-**Name:** <!-- Your name and MAU ID -->
+**Name:** Anna Berecz at062?
 
-<!-- One or two sentences: what kind of instrument is it, and what is it like to play? -->
+It is an instrument that play two melody for the "right" and "left" hand like a piano. By changing its octave it creates a different feelings for the player, sometimes it's nice to listen to the melody, and sometimes it painful but people should have place to understand why is a melody not or is pleasant.
 
 ## How to play
 
-<!-- Fill in the table with a row for everything the player can do with the pointer: clicking, moving slowly or fast, moving in circles, holding still... Say what happens to the sound and to the shapes. If you added keys, give them rows too. -->
 
-| When you...  | The sound...                         | The shapes... |
-| ------------ | ------------------------------------ | ------------- |
-| Click or tap | Plays a C4 (the example: replace it) | Nothing yet   |
-|              |                                      |               |
+| When you...                 | The sound...                            | The shapes...       |
+| --------------------------- | --------------------------------------- | ------------------- |
+| Click inside the            | It will start to play both melodies     | won't change        |
+| light grey spinning square  |                                         |                     |
+| --------------------------- | --------------------------------------- | ------------------- |
+| Move the pointer faster     | It will change speed up the spinning    | The mentioned       |
+| inside the dark grey circle | square's pace and make the volume louder| square spins faster |
+| --------------------------- | --------------------------------------- | ------------------- |
+| Change the position of the  | It will change the octave up or down    | will change position|
+|light grey circle on the left|                                         |                     |
+| --------------------------- | --------------------------------------- | ------------------- |
 
-<!-- Anything else a player needs to know: how to get started, a good thing to try first. -->
-
+ If you click once inside the spinning light grey square, the melodies start to play, but if you click more than once the music will stack and starts to play it as many time as you clicked inside. I would advise to click only once at the time.
 ---
 
 ## About this assignment

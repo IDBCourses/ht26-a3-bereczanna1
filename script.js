@@ -27,84 +27,23 @@ import { createShape } from "./shape.js";
 // Settings variables should contain all of the "fixed" parts of your programs
 // For example: which notes you can play, how fast things move, the tempo.
 //Right hand
-const melody = [
-  "F#4",
-  "B4",
-  "C#5",
-  "D5",
-  "E5",
-  "D5",
-  "C#5",
-  "B4",
-  "F#4",
-  "B4",
-  "C#5",
-  "D5",
-  "E5",
-  "D5",
-  "C#5",
-  "D5",
-  "B4",
-  "G4",
-  "A4",
-  "B4",
-  "C#5",
-  "B4",
-  "A4",
-  "G4",
-  "F#4",
-  "E4",
-  "D4",
-  "C#4",
-  "B3",
-  "C#4",
-  "D4",
-  "E4",
-  "F#4",
-  "G4",
-  "A4",
-  "B4",
-  "C#5",
-  "D5",
-  "E5",
-  "F#5",
-  "E5",
-  "D5",
-  "C#5",
-  "B4",
-  "A4",
-  "G4",
+const melody = ["F#4", "B4", "C#5", "D5", "E5",
+  "D5", "C#5", "B4", "F#4", "B4",
+  "C#5", "D5", "E5", "D5", "C#5",
+  "D5", "B4", "G4", "A4", "B4",
+  "C#5", "B4", "A4", "G4", "F#4",
+  "E4", "D4", "C#4", "B3", "C#4",
+  "D4", "E4", "F#4", "G4", "A4",
+  "B4", "C#5", "D5", "E5", "F#5",
+  "E5", "D5", "C#5", "B4", "A4", "G4",
 ]; // the note played when the pointer goes down
 //left hand
-const bassMelody = [
-  "E3",
-  "B3",
-  "G3",
-  "B3",
-  "E3",
-  "B3",
-  "G3",
-  "B3",
-  "A2",
-  "E3",
-  "C#3",
-  "E3",
-  "A2",
-  "E3",
-  "C#3",
-  "E3",
-  "B2",
-  "F#3",
-  "D3",
-  "F#3",
-  "B2",
-  "F#3",
-  "D3",
-  "F#3",
-  "E3",
-  "B3",
-  "G3",
-  "B3",
+const bassMelody = [ "E3", "B3", "G3", "B3", "E3",
+  "B3", "G3", "B3", "A2", "E3",
+  "C#3", "E3", "A2", "E3", "C#3",
+  "E3", "B2", "F#3", "D3", "F#3",
+  "B2", "F#3", "D3", "F#3", "E3",
+  "B3", "G3", "B3",
 ];
 // ---------- State ----------
 // State variables are the parts of your program that change over time.
@@ -122,7 +61,6 @@ let lastTime = null;
 let angle = 0;
 let speed = 0.02; // Base rotation speed
 let targetSpeed = 0.02;
-let speeds = [];
 
 let currentOctave = 4;
 const baseFrequency = 440;
@@ -140,12 +78,12 @@ function updateSound() {
 }
 
 function raiseFrequency() {
-  currentOctave = Math.min(6, currentOctave + 1);
+  currentOctave = Math.min(7, currentOctave + 1);
   updateSound();
 }
 
 function lowerFrequency() {
-  currentOctave = Math.max(2, currentOctave - 1);
+  currentOctave = Math.max(1, currentOctave - 1);
   updateSound();
 }
 
@@ -165,7 +103,7 @@ function use() {
 // ---------- Circle Animation ----------
 function animateShape() {
   speed += (targetSpeed - speed) * 0.3; // Smoothly adjust rotation speed
-  angle += speed; // Move a little farther around the circle
+  angle += speed;
 
   // Move our existing shape
   if (spinningshape) {
@@ -192,7 +130,7 @@ function pointerDown(event) {
   //bassMelody starts playing
   for (let i = 1; i < bassMelody.length; i++) {
     // goes through the notes in the melody
-    let bassMelodytime = start + i * 0.55; // creates a rhytm so there 0.55 seconds between every note
+    let bassMelodytime = start + i * 0.55;
     console.log("Pointer down at", event.clientX, event.clientY);
     if (bassMelody[i] !== null) {
       synth.triggerAttackRelease(bassMelody[i], "2n", bassMelodytime);
@@ -254,29 +192,23 @@ function pointerMoveOctaves(event) {
   const rect = squareOctaves.element.getBoundingClientRect();
 
   // Ignore pointer positions outside the octave control
-  const position = Math.max(
-    0,
-    Math.min(1, 1 - (event.clientY - rect.top) / rect.height),
-  );
+  const position = Math.max(0, Math.min(1, 1 - (event.clientY - rect.top) / rect.height));
 
   // Map pointer position to octave levels 2–6
   const octave = 2 + Math.floor(position * 5);
 
-  if (previousOctave === -1) {
-    // Initialise the control the first time
+  if (previousOctave === -1) {  // Initialise the control the first time
     currentOctave = octave;
     previousOctave = octave;
     updateSound();
     return;
   }
 
-  if (octave > previousOctave) {
-    // Pointer moved to a higher octave
+  if (octave > previousOctave) { // Pointer moved to a higher octave
     while (currentOctave < octave) {
       raiseFrequency();
     }
-  } else if (octave < previousOctave) {
-    // Pointer moved to a lower octave
+  } else if (octave < previousOctave) {  // Pointer moved to a lower octave
     while (currentOctave > octave) {
       lowerFrequency();
     }
@@ -335,10 +267,7 @@ function setup() {
   circle.element.addEventListener("pointerleave", pointerLeave);
   circle.element.addEventListener("pointermove", pointerMove);
   squareOctaves.element.addEventListener("pointermove", pointerMoveOctaves);
-  squareOctaves.element.addEventListener(
-    "pointermove",
-    pointerMoveShowingWhereInOctave,
-  );
+  squareOctaves.element.addEventListener("pointermove", pointerMoveShowingWhereInOctave);
 
   animateShape();
 }
