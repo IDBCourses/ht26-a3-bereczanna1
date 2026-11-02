@@ -1,32 +1,7 @@
-/*
- * IDB Programming: A3 — a musical instrument
- *
- * All of the code for your instrument goes in this file. It's split into sections:
- *   settings — the "fixed" parts of your program
- *   state    — the parts of your program that change over time
- *   sound    — the Tone.js instruments and effects
- *   update   — updates the state every 100ms, if necessary
- *   use      — uses the state to make sound and shapes every 100ms, if necessary
- *   controls — what happens when the player uses the pointer
- *   setup    — starts everything
- *
- * The pointer events change the state. update() and use() each run every
- * 100ms, in a loop:
- *   1. update: change the state, e.g. based on time or on the pointer's movement
- *   2. use:    make sound and move shapes, based on the state
- *
- * Shapes come from shape.js: createShape() makes one, and its methods
- * (setPosition, setSize, setColour ...) change it.
- *
- * Tone.js documentation: https://tonejs.github.io/docs/15.1.22/
- */
-
 import { createShape } from "./shape.js";
 
 // ---------- Settings ----------
-// Settings variables should contain all of the "fixed" parts of your programs
-// For example: which notes you can play, how fast things move, the tempo.
-//Right hand
+
 const melody = ["F#4", "B4", "C#5", "D5", "E5",
   "D5", "C#5", "B4", "F#4", "B4",
   "C#5", "D5", "E5", "D5", "C#5",
@@ -37,17 +12,6 @@ const melody = ["F#4", "B4", "C#5", "D5", "E5",
   "B4", "C#5", "D5", "E5", "F#5",
   "E5", "D5", "C#5", "B4", "A4", "G4",
 ]; // the note played when the pointer goes down
-//left hand
-const bassMelody = [ "E3", "B3", "G3", "B3", "E3",
-  "B3", "G3", "B3", "A2", "E3",
-  "C#3", "E3", "A2", "E3", "C#3",
-  "E3", "B2", "F#3", "D3", "F#3",
-  "B2", "F#3", "D3", "F#3", "E3",
-  "B3", "G3", "B3",
-];
-// ---------- State ----------
-// State variables are the parts of your program that change over time.
-// For example: where the pointer is, how fast it's moving, or whether a drone is on.
 
 const spinningshape = createShape();
 const circleOctaves = createShape();
@@ -113,7 +77,6 @@ function animateShape() {
 }
 
 // ---------- Controls (Event Handlers) ----------
-// Runs every time the pointer goes down: a click, a tap or a pen touch.
 function pointerDown(event) {
   Tone.start(); // browsers only allow sound after the player has pressed something
 
@@ -125,15 +88,6 @@ function pointerDown(event) {
     console.log("Pointer down at", event.clientX, event.clientY);
     if (melody[i] !== null) {
       synth.triggerAttackRelease(melody[i], "4n", melodytime); // play the melody for
-    }
-  }
-  //bassMelody starts playing
-  for (let i = 1; i < bassMelody.length; i++) {
-    // goes through the notes in the melody
-    let bassMelodytime = start + i * 0.55;
-    console.log("Pointer down at", event.clientX, event.clientY);
-    if (bassMelody[i] !== null) {
-      synth.triggerAttackRelease(bassMelody[i], "2n", bassMelodytime);
     }
   }
 }
@@ -154,7 +108,7 @@ function pointerLeave(event) {
   lastY = null;
   lastTime = null;
   targetSpeed = 0.035; // Return to base speed
-  synth.volume.value = -20; // start quiet: we haven't moved yet
+  synth.volume.value = -20;
 }
 
 function pointerMove(event) {
@@ -234,8 +188,6 @@ function pointerMoveShowingWhereInOctave(event) {
 function setup() {
   update(); // start the update loop
   use(); // start the use loop
-
-  // Example: a shape near the middle of the window. Replace it with your own.
 
   circleOctaves.setColour(0, 0, 83);
   circleOctaves.setPosition(0.185, 0.5);
